@@ -1,0 +1,38 @@
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BME280.h>
+
+// Crear objeto del sensor
+Adafruit_BME280 bme;
+
+// Pines I2C del ESP32
+#define SDA_PIN 21
+#define SCL_PIN 22
+
+void setup() {
+    Serial.begin(115200);
+
+    // Inicializar comunicacion I2C
+    Wire.begin(SDA_PIN, SCL_PIN);
+
+    // Inicializar sensor BME280
+    if (!bme.begin(0x76)) {
+        Serial.println("Error: No se detecta el sensor BME280");
+        while (1);
+    }
+
+    Serial.println("Sensor BME280 iniciado correctamente");
+}
+
+void loop() {
+
+    // Leer humedad relativa
+    float humedad = bme.readHumidity();
+
+    // Mostrar resultado
+    Serial.print("Humedad: ");
+    Serial.print(humedad);
+    Serial.println(" %");
+
+    delay(2000);
+}
