@@ -1,0 +1,87 @@
+
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+
+// Configuracion de pantalla OLED
+#define ANCHO 128
+#define ALTO 64
+#define OLED_RESET -1
+
+Adafruit_SSD1306 display(ANCHO, ALTO, &Wire, OLED_RESET);
+
+// Sensor LDR
+#define LDR A0
+
+int valorLuz = 0;
+int porcentaje = 0;
+
+void setup() {
+  Serial.begin(9600);
+
+  // Iniciar pantalla OLED
+  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
+    Serial.println("Error al iniciar OLED");
+    while (true);
+  }
+
+  display.clearDisplay();
+  display.setTextColor(SSD1306_WHITE);
+
+  display.setTextSize(1);
+  display.setCursor(15, 10);
+  display.println("SENSOR DE LUZ");
+
+  display.display();
+  delay(2000);
+}
+
+void loop() {
+
+  // Leer sensor LDR
+  valorLuz = analogRead(LDR);
+
+  // Convertir lectura a porcentaje
+  porcentaje = map(valorLuz, 0, 1023, 0, 100);
+
+  // Mostrar por monitor serial
+  Serial.print("Luz: ");
+  Serial.print(valorLuz);
+  Serial.print(" | Porcentaje: ");
+  Serial.print(porcentaje);
+  Serial.println("%");
+
+  // Mostrar en OLED
+  display.clearDisplay();
+
+  display.setTextSize(1);
+  display.setCursor(20, 0);
+  display.println("SENSOR FOTORRESISTOR");
+
+  display.drawLine(0, 12, 128, 12, SSD1306_WHITE);
+
+  display.setCursor(0, 20);
+  display.println("Lectura LDR:");
+
+  display.setTextSize(2);
+  display.setCursor(25, 32);
+  display.print(valorLuz);
+
+  display.setTextSize(1);
+  display.setCursor(90, 38);
+  display.print("/1023");
+
+  display.setCursor(0, 52);
+  display.print("Nivel: ");
+  display.print(porcentaje);
+  display.print("%");
+
+  // Barra grafica de luz
+  display.drawRect(75, 52, 50, 10, SSD1306_WHITE);
+  display.fillRect(76, 53, porcentaje * 48 / 100, 8,
+                   SSD1306_WHITE);
+
+  display.display();
+
+  delay(300);
+}
